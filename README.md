@@ -18,27 +18,34 @@ Conçu pour **vérifier les calculs simplistes des influenceurs** et fournir une
 - **Démographie pondérée** : 6 grandes régions du monde (Europe/Amérique du Nord, Asie de l'Est, Asie du Sud, Afrique, Amérique latine, Océanie) tirées selon des poids réalistes (somme normalisée à 1.0)
 - **Pyramide des âges** : tirage par tranches (enfant 30 % / adulte 35 % / mature 25 % / vieux 10 %)
 - **Physique cohérent** : taille dérivée de la région + courbe de croissance pour les mineurs, poids calculé à partir d'un IMC cible régional et de la taille
-- **Santé** : probabilité de maladie croissante avec l'âge (`0.05 + âge/100 × 0.75`), sévérité tirée sur une loi exponentielle
+- **Pyramide des âges réaliste** : densité **décroissante** au sein des tranches matures/âgées (loi triangulaire) — beaucoup plus de septuagénaires que de centenaires, conformément à la mortalité
+- **Force ≠ poids brut** : seule la **masse maigre** compte ; au-delà d'un IMC athlétique (~25), le surpoids n'est compté qu'à 20 % (un obèse n'est pas un colosse)
+- **Santé** : probabilité de maladie croissante avec l'âge (`0.02 + (âge/100)² × 0.5` — prévalence réaliste : ~2 % chez les jeunes, ~50 % chez les très âgés), sévérité tirée sur une loi exponentielle
+- **Résilience psychologique** : facteur individuel (loi bêta, renforcé par l'entraînement, atténué aux âges extrêmes) qui module l'encaissement du trauma
 - **Richesse** : facteur économique régional × facteur d'âge × loi log-normale → classement en **10 classes sociales** (de *Indigent* à *Fortune*)
 - **Identité localisée** : prénom tiré selon la région et le sexe
 
 ### Combat anatomique tour par tour
 - **Corps en 6 membres** : tête, torse, bras G/D, jambes G/D — chacun avec ses propres PV proportionnels au poids
-- **Système au temps réel** : chaque combattant possède un *timer*, celui dont le timer est le plus bas agit ; le temps d'action dépend de la **vitesse** (`75 / vitesse`)
-- **Ciblage pondéré** : le torse et la tête sont visés en priorité ; un mental bas dégrade la visée (tirs désespérés → plus de coups à la tête)
-- **Précision réaliste** : `0.7 + (intelligence − vitesse adverse)/300`, modulée par le mental, **bornée dans [0.05, 0.95]**
-- **Dégâts localisés** : tête ×2.5, torse ×1.0, membres ×0.6 ; un membre rompu **pénalise les stats** (jambe → vitesse, bras → force)
+- **Système au temps réel** : chaque combattant possède un *timer*, celui dont le timer est le plus bas agit ; le temps d'action dépend de la **vitesse** (`75 / vitesse`) et **ralentit avec la fatigue**
+- **Endurance (fatigue intra-combat)** : chaque action coûte de l'énergie (plus vite épuisé si lourd/âgé, plus lentement si entraîné) ; un combattant épuisé frappe moins fort, vise moins bien et agit plus lentement
+- **Défense active** : le défenseur peut **esquiver/parer** selon ses réflexes (vitesse), son entraînement, son sang-froid et son souffle (esquive bornée à 75 %)
+- **Ciblage piloté par l'intelligence** : un combattant lucide **et** intelligent vise les zones vitales de façon délibérée ; un mental bas fait paniquer et disperse les coups
+- **Précision réaliste** : dépend de l'**entraînement + réflexes (vitesse) + sang-froid + endurance** (plus de l'intelligence, qui pilote désormais le *ciblage*), **bornée dans [0.05, 0.95]**
+- **Dégâts localisés** : échelle réduite (`DEGATS_SCALE`) pour des duels à **plusieurs échanges** plutôt qu'un *one-shot* ; tête ×1.5 (zone la plus efficace, mais tête plus résistante), torse ×1.0, membres ×0.5 ; un membre rompu **pénalise les stats** (jambe → vitesse, bras → force)
 - **Deux conditions de mort** : physique (tête ≤ 0 ou torse ≤ −20) ou **psychologique** (effondrement mental → abandon)
 
 ### État mental & psychologique
 - **Santé mentale** de 0 (brisé) à 1 (stable), influencée par l'âge, la maladie et les coups reçus
 - **Trauma de combat** : la douleur et les blessures graves font chuter le mental ; un combattant **tétanisé** (mental ≤ 0.1) passe ses tours
-- **Endurcissement** : les combattants entraînés encaissent mieux le choc psychologique d'infliger des blessures
+- **Endurcissement** : les combattants entraînés (et naturellement résilients) encaissent mieux le choc psychologique d'infliger des blessures ; tous les chocs sont modulés par la **résilience individuelle**
+- **Cicatrice psychologique (PTSD)** : un trauma profond (blessure grave, mise à mort) **abaisse durablement le plafond mental** — la récupération plafonne ensuite sous le niveau initial
 - **Apaisement post-combat** : le survivant récupère une partie de son mental après la victoire
 
 ### Récupération & soins
-- **Guérison physique et mentale** entre les rounds (24 h de repos par round)
-- **Effet médecin** : une équipe médicale multiplie par 5 la vitesse de guérison et permet de stabiliser/réparer les membres détruits (plâtre, sutures)
+- **Remise en condition** entre les rounds (24 h de repos) : le repos restaure surtout la **condition** (fatigue, contusions, coupures superficielles, récupération proportionnelle au déficit) — pas une cicatrisation miracle
+- **Blessures profondes lentes** : un membre détruit ne se « répare » **pas** en 24 h ; avec une équipe médicale on stabilise (anti-infection) et on amorce une consolidation lente (~2 PV/jour) → il reste hors d'usage plusieurs rounds
+- **Effet médecin** : une équipe médicale accélère la remise en condition et la guérison de la maladie
 - **Maladie réversible** : la sévérité décroît avec le temps (plus vite avec médecin) ; une fois guéri, le combattant **retrouve sa pleine force/vitesse**
 - **Recalcul fonctionnel** : la force et la vitesse sont reconstruites selon l'état réel des paires de membres (on prend le **minimum** de chaque paire)
 
@@ -60,9 +67,9 @@ Conçu pour **vérifier les calculs simplistes des influenceurs** et fournir une
 
 Le moteur repose sur trois étages enchaînés : **génération → combat → tournoi**.
 
-**1. Chaque humain est un objet `Human`** construit à partir de tirages aléatoires corrélés. L'âge conditionne presque tout : un mineur a une taille et une force réduites, un senior perd en vitesse mais gagne en intelligence et en richesse. La force suit `max(1, 𝒩(30,10) + poids × 0.4)` (un poids lourd frappe fort), la vitesse `𝒩(50,8)` pénalisée après 25 ans. La maladie applique un **malus multiplicatif réversible** sur la force et la vitesse, séparé du potentiel sain stocké dans `force_max` / `vitesse_max`.
+**1. Chaque humain est un objet `Human`** construit à partir de tirages aléatoires corrélés. L'âge conditionne presque tout : un mineur a une taille et une force réduites, un senior perd en vitesse mais gagne en intelligence et en richesse. La force suit `max(1, 𝒩(30,10) + masse_utile × 0.4)` où `masse_utile` ne compte le surpoids (IMC > 25) qu'à 20 % — **un poids lourd frappe fort, mais seulement s'il est musclé, pas gras**. La vitesse suit `𝒩(50,8)` pénalisée après 25 ans. La maladie applique un **malus multiplicatif réversible** sur la force et la vitesse, séparé du potentiel sain stocké dans `force_max` / `vitesse_max`.
 
-**2. Un duel (`combat_a_mort`) se joue au temps continu.** Deux *timers* avancent : à chaque itération, le combattant le plus « en avance » (timer le plus bas) attaque, et son timer progresse de `75 / vitesse` — donc **plus on est rapide, plus on agit souvent**. À chaque coup, on tire d'abord une **cible** (pondérée), puis on teste la **touche** via une précision bornée, et enfin on calcule les **dégâts** = `force × uniform(0.8,1.2) × multiplicateur de zone`. Les PV du membre baissent ; à la rupture, les stats du défenseur chutent et son mental encaisse un choc. Le duel s'arrête à la **mort physique** (tête détruite ou torse à −20) ou à la **mort psychologique** (mental à 0). Des garde-fous (double tétanie, `MAX_TOURS`) empêchent toute boucle infinie et départagent aux points si nécessaire.
+**2. Un duel (`combat_a_mort`) se joue au temps continu.** Deux *timers* avancent : à chaque itération, le combattant le plus « en avance » (timer le plus bas) attaque, et son timer progresse de `75 / vitesse` (allongé par la **fatigue**) — donc **plus on est rapide et frais, plus on agit souvent**. À chaque action : on consomme de l'**endurance**, on tire une **cible** (instinctive, paniquée ou tactique selon le sang-froid et l'intelligence), on teste la **touche** (entraînement + vitesse + mental + fatigue, bornée), le défenseur tente une **esquive**, puis on calcule des **dégâts** = `force × uniform(0.8,1.2) × DEGATS_SCALE × multiplicateur de zone × fatigue` — volontairement faibles pour que le duel dure **plusieurs échanges**. Les PV du membre baissent ; à la rupture, les stats du défenseur chutent et son mental encaisse un choc (modulé par sa résilience). Le duel s'arrête à la **mort physique** (tête détruite ou torse à −20) ou à la **mort psychologique** (mental à 0). Des garde-fous (double tétanie, `MAX_TOURS`) empêchent toute boucle infinie et départagent aux points si nécessaire.
 
 **3. Le tournoi (`hunger_games`)** mélange la population, l'apparie, fait combattre chaque paire, accorde **24 h de récupération** au vainqueur (et à l'exempté), puis recommence avec les survivants — round après round — jusqu'à ce qu'il n'en reste qu'un. La récupération réinjecte de la guérison physique/mentale et **soigne progressivement la maladie**, si bien qu'un combattant peut entrer diminué dans un round et en ressortir plus fort au suivant.
 
