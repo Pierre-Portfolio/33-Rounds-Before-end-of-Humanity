@@ -145,9 +145,6 @@ graph_etat_mental(population, round_num=1)
 graph_force_vitesse(population, round_num=1)
 ```
 
-## Aperçu de l'interface
-<img src="./assets/images/github/UI.png" alt="Aperçu de la simulation" />
-
 ## Auteur
 - [Pierre-Portfolio](https://github.com/Pierre-Portfolio/)
 
