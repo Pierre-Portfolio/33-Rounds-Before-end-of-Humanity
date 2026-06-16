@@ -1,7 +1,7 @@
 <h1 align="center">
-  <img src="./assets/images/github/header.png" alt="SIMULATION SCREEN" />
+  <img src="./Assets/images/github/header.png" alt="SIMULATION SCREEN" />
 </h1>
-<img src="./assets/images/github/star.gif" alt="star" />
+<img src="./Assets/images/github/star.gif" alt="star" />
 
 ---
 
