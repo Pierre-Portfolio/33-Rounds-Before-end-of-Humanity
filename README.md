@@ -10,7 +10,7 @@
 ## Aperçu
 Simulation de type **"Battle Royale"** inspirée d'une tendance Instagram. Le notebook génère une population mondiale réaliste, simule des duels anatomiques à mains nues (membre par membre, avec état mental), puis fait s'affronter tout le monde dans un tournoi à élimination directe jusqu'au dernier en lice.
 
-Conçu pour **vérifier les calculs simplistes des influenceurs** et fournir une estimation statistique de jusqu'à quel round un individu personnalisé peut réellement survivre. Tout tourne **localement** dans un notebook Python — aucun serveur, aucune dépendance externe hormis Matplotlib.
+Conçu pour **vérifier les calculs simplistes des influenceurs** et fournir une estimation statistique de jusqu'à quel round un individu personnalisé peut réellement survivre. Tout tourne **localement** dans un notebook Python — aucun serveur, aucune dépendance externe hormis Matplotlib et NumPy (mode humanité).
 
 ## Fonctionnalités
 
@@ -55,6 +55,7 @@ Conçu pour **vérifier les calculs simplistes des influenceurs** et fournir une
 
 ### Tournoi (Hunger Games)
 - **33 rounds** : 2^33 = 8,6 milliards d'humains. La population simulée (8192) en est un échantillon : 20 rounds à taille constante (chacun affronte la copie d'un autre membre), puis 13 rounds de tableau exact. Limite : les adversaires des derniers rounds sont les meilleurs de l'échantillon, pas les meilleurs de 8,6 milliards
+- **Mode humanité** (`MODE = "humanite"`) : le tournoi des **8 589 934 592 humains**, en ~15 s, sans les créer. Un modèle de puissance est calibré sur de vrais duels (86 % de duels bien prédits) ; la queue des profils d'exception est extrapolée (validée sur 1 million d'humains) ; la loi des combattants de chaque round se calcule exactement sur une grille. Les adversaires du joueur sont de vrais `Human` tirés dans cette loi, avec l'usure des rounds précédents, et chaque duel du joueur est simulé avec le moteur complet. Sur les rounds 1 à 13, la survie concorde à moins de 4 points avec le mode échantillon
 - **Graine** (`seed`) : même graine, même tournoi
 - **Monte-Carlo** (`estimer_survie`) : le parcours d'un joueur est rejoué 1000 fois ; on lit une distribution (médiane, quartiles, probabilité par round), pas un tirage unique
 - Combats par paires à chaque round, **exemption (bye)** pour la population impaire
@@ -85,6 +86,7 @@ Le moteur repose sur trois étages enchaînés : **génération → combat → t
 ## Technologies
 - **Python 3** (Google Colab / Jupyter)
 - **Matplotlib** — visualisations (camemberts, histogrammes, nuages de points)
+- **NumPy** — modèle de puissance du mode humanité (régression logistique, tableau sur grille)
 - Aucun serveur, aucune base de données externe — tout s'exécute dans le notebook
 
 ## Installation
@@ -93,8 +95,9 @@ Le moteur repose sur trois étages enchaînés : **génération → combat → t
 
 - Ouvrez `33Rounds.ipynb` dans **Google Colab** (ou Jupyter local).
 - Exécutez les cellules d'initialisation (Imports → classe `Human` → fonctions de simulation).
-- Dans la section **"Tournoi avec moi"**, renseignez votre profil dans `integrer_joueur` (taille, poids, âge, entraînement…).
-- Lancez la cellule principale `hunger_games` et patientez pendant la simulation des combats (environ 20 secondes).
+- Dans la section **"Tournoi avec moi"**, renseignez votre profil (taille, poids, âge, entraînement…).
+- En tête de la cellule principale, choisissez le mode : `MODE = "echantillon"` (défaut : 8192 humains simulés un par un) ou `MODE = "humanite"` (les 8,6 milliards, via le modèle de puissance).
+- Lancez la cellule principale et patientez pendant la simulation (environ 20 secondes, dans les deux modes).
 - Consultez le journal d'exécution : il indique **à quel round vous avez été éliminé** et le profil du champion.
 - Lancez la cellule Monte-Carlo : elle donne votre round de sortie médian sur 1000 tournois.
 
@@ -161,6 +164,11 @@ vainqueur = hunger_games(population, tracked_ids=[mon_id], equipe_medecin=True,
 # Un tournoi = un tirage. Rejouer 1000 fois pour lire une distribution
 resultat = estimer_survie(niveaux, nb_tournois=1000, seed=33, equipe_medecin=True, **MOI)
 graph_survie(resultat)
+
+# Mode humanité : les 2^33 humains, via le modèle de puissance
+modele = ModeleHumanite(nb_rounds=33, seed=33)
+vainqueur = hunger_games_humanite([creer_joueur(**MOI)], modele)
+resultat = estimer_survie(modele.niveaux(), nb_tournois=1000, seed=33, **MOI)
 
 # Visualiser l'état de la population à un round donné
 graph_age(population, round_num=1)
